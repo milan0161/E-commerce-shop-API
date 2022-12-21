@@ -98,13 +98,35 @@ const deleteUser = async (req, res, next) => {
         next(error);
     }
 }
-
+//Funkcija update za korisnika, promena korisnickih podataka, ne moraju svi da se menjaju, vec po zelji.
 const updateUser = async (req, res, next) => {
     try {
         const userId = req.params.id
         const {name, password, email} = req.body;
         const hashedPw = await bcrypt.hash(password, 12);
-        const user = await User.update()
+        const user = await User.findOne({
+            where:{
+                id: userId
+            }
+        })
+        const oldName = user.name;
+        const oldPassword = user.password;
+        const oldEmail = user.email;
+        if(!name){
+            user.name = oldName;
+        }else{
+            user.name = name;
+        };
+
+        if(!email){
+            user.email = oldEmail;
+        }else{
+            user.email = email;
+        };
+        if(password){
+            user.password = hashedPw;
+        }
+        await user.save()
 
     res.status(200).json({user:user})
     } catch (error) {

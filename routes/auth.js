@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 
+const {body} = require('express-validator')
+
 const {
     singup,
     signin,
@@ -12,7 +14,11 @@ const {
 } = require('../controllers/auth')
 
 // method = "POST" => localhost:8080/user/signup
-router.post('/signup', singup);
+router.post('/signup',[
+    body('name').isString().trim().isLength({min:3,max:25}).withMessage('Please enter a valid password'),
+    body('email').isEmail().normalizeEmail().trim().withMessage('Please enter a valid email adress'),
+    body('password').isString().trim().isLength({min:5, max:25}).withMessage('Please enter a valid password')
+], singup);
 // method = "POST" => localhost:8080/user/signin
 router.post('/signin', signin);
 //method = "PATCH" => localhost:8080/user/update-user/id
