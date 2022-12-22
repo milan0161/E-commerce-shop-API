@@ -1,4 +1,4 @@
-const {Sequelize} = require('sequelize');
+const {Sequelize, STRING} = require('sequelize');
 
 const sequelize = require('../db/connect');
 
@@ -34,7 +34,8 @@ const User = sequelize.define('user', {
     role:{
         type: Sequelize.ENUM('client', 'admin'),
         defaultValue: "client"
-    },
+    }
+    
 },{timestamps:true});
 
 User.sync()

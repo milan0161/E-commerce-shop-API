@@ -7,13 +7,30 @@ require('dotenv').config();
 
 const singup = async (req, res, next) => {
     try {
-        console.log(req.body.name)
         const {name, email, password} = req.body;
+        const userExist = await User.findOne({
+            where:{
+                email:email
+            }
+        })
+        if(userExist){
+            const error = new Error('User already exist')
+            error.statusCode = 400;
+            throw error;
+        };
+        let role;
+        const isFirstAccount = await User.count();
+        if(isFirstAccount === 0){
+            role = 'admin'
+        }else{
+            role = 'client'
+        }
         const hashedPw = await bcrypt.hash(password, 12)
         const user = await User.create({
             name:name,
             email:email,
-            password:hashedPw
+            password:hashedPw,
+            role:role
         });
         const token = jwt.sign({
             email: user.email,
