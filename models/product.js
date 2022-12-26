@@ -1,4 +1,4 @@
-const {Sequelize, STRING, INTEGER, ENUM, BOOLEAN, ARRAY} = require('sequelize');
+const {Sequelize, STRING, INTEGER, ENUM, BOOLEAN, ARRAY, TEXT} = require('sequelize');
 
 const sequelize = require('../db/connect');
 
@@ -36,10 +36,6 @@ const Product = sequelize.define('product', {
         type:STRING,
         allowNull: false
     },
-    images:{
-        type:ARRAY(STRING),
-        
-    },
     description:{
         type:STRING,
         allowNull:false,
@@ -47,8 +43,15 @@ const Product = sequelize.define('product', {
             min:5,
             max:55
         }
+    },
+    images:{
+        type:STRING,
+        allowNull:false
+        
     }
-},{timestamps:true})
+}
+,{timestamps:true}
+)
 
 Product.sync()
 module.exports = Product;

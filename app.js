@@ -44,9 +44,11 @@ const fileFilter = (req, file, cb) => {
 }
 
 
+
 //bodyparsers
 app.use(bodyParser.json());
-app.use(multer({storage: fileStorage, fileFilter: fileFilter}).array('images', 5))
+app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('images'))
+
 
 
 app.use('/public', express.static(path.join(__dirname, 'public')))
