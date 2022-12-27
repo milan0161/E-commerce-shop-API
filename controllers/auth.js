@@ -34,7 +34,8 @@ const singup = async (req, res, next) => {
         });
         const token = jwt.sign({
             email: user.email,
-            userId: user.id
+            userId: user.id,
+            role: user.role
        },process.env.JWT_SECRET,{
         expiresIn: '1h'
         })
@@ -68,7 +69,8 @@ const signin = async (req, res, next) => {
        }
        const token = jwt.sign({
         email: user.email,
-        userId: user.id
+        userId: user.id,
+        role:user.role
        },process.env.JWT_SECRET,{
         expiresIn: '1h'
        })

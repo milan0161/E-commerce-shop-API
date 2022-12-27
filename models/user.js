@@ -1,4 +1,5 @@
 const {Sequelize, STRING} = require('sequelize');
+const Product = require('./product')
 
 const sequelize = require('../db/connect');
 
@@ -37,6 +38,7 @@ const User = sequelize.define('user', {
     }
     
 },{timestamps:true});
+
 
 User.sync()
 module.exports = User;
