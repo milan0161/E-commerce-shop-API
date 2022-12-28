@@ -1,15 +1,16 @@
 const path = require('path')
 const express = require('express');
 const bodyParser = require('body-parser');
-const sequlize = require('./db/connect');
+const sequelize = require('./db/connect')
 const app = express();
 const errorhandler = require('./middleware/errorhandler');
 const multer = require('multer');
-
+const relations = require('./models/relations')
 
 //import routes
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/product')
+const cartRoutes = require('./routes/cart')
 
 
 //cors options
@@ -54,15 +55,16 @@ app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('images'))
 app.use('/public', express.static(path.join(__dirname, 'public')))
 
 
-app.use('/user', authRoutes)
-app.use('/products', productRoutes)
+app.use('/user', authRoutes);
+app.use('/products', productRoutes);
+app.use('/cart', cartRoutes);
 
 port = 8080;
 
 app.use(errorhandler)
 
 
-sequlize.authenticate()
+sequelize.authenticate()
 .then(() => {
     app.listen(port, () => {
         console.log('server is listening on port ' + port + '....')

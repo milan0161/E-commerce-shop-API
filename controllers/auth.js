@@ -37,7 +37,7 @@ const singup = async (req, res, next) => {
             userId: user.id,
             role: user.role
        },process.env.JWT_SECRET,{
-        expiresIn: '1h'
+        expiresIn: '10h'
         })
         res.status(201).json({token: token, user:user})
     } catch (error) {
@@ -72,7 +72,7 @@ const signin = async (req, res, next) => {
         userId: user.id,
         role:user.role
        },process.env.JWT_SECRET,{
-        expiresIn: '1h'
+        expiresIn: '10h'
        })
 
        res.status(200).json({token: token, userId:user.id})

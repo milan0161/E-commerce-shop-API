@@ -1,6 +1,5 @@
 const Product = require('../models/product');
-const {Sequelize, where} = require('sequelize');
-const User = require('../models/user')
+const {Sequelize} = require('sequelize');
 const clearImage = require('../utils/clear')
 const jwt = require('jsonwebtoken')
 require('dotenv').config();
