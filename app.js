@@ -9,9 +9,9 @@ const relations = require('./models/relations')
 
 //import routes
 const authRoutes = require('./routes/auth');
-const productRoutes = require('./routes/product')
-const cartRoutes = require('./routes/cart')
-
+const productRoutes = require('./routes/product');
+const cartRoutes = require('./routes/cart');
+const orderRoutes = require('./routes/order')
 
 //cors options
 app.use((req, res, next) => {
@@ -58,6 +58,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')))
 app.use('/user', authRoutes);
 app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
+app.use('/order', orderRoutes)
 
 port = 8080;
 

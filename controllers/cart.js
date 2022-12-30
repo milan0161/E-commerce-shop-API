@@ -15,8 +15,8 @@ const addToCart =  async (req, res, next) => {
     const authUser = jwt.verify(aToken, process.env.JWT_SECRET);
     const userId = authUser.userId
     const prodId = req.body.prodId
-    // let newCart;
-    //trazis cart
+    
+    //looking  for cart
     try {
         const currentUser = await User.findByPk(userId);
         let cart = await Cart.findOne({
@@ -24,33 +24,41 @@ const addToCart =  async (req, res, next) => {
                 userId: currentUser.id
             }
         })
-        //ako nema kart kreiras kart sa userId
+        //if no cart, create it using current user
     if(cart == null) {
         cart = await Cart.create({
             userId: currentUser.id
         })  
     };
 
-    //trazis cartItems 
+    //looking for specific cart item you want to put in cart 
     let currentProducts = await CartItem.findAll({
         where:{
-            CartId:cart.id
+            productId:prodId
         }
-    })
+    });
     let newQuantity;
-    if(currentProducts.length === 0){ 
+    //if no item in cart, create it
+    if(currentProducts.length === 0 ){ 
        currentProducts = await CartItem.create({
             CartId:cart.id,
             productId:prodId,
             quantity:1
-       })
+    })
+       console.log(currentProducts)
     }else{
         newQuantity = currentProducts[0].quantity + 1
     }
-    const product = await Product.findByPk(prodId)
+    //else add quantity to it
+    const product = await Product.findByPk(prodId);
     await cart.addProduct(product, {through: {quantity: newQuantity}})
     
-        console.log(currentProducts)
+    //find all products in cart and send it
+    currentProducts = await CartItem.findAll({
+        where:{
+            CartId:cart.id
+        }
+    });  
         res.status(200).json({message:'Uspesno ste ubacili u korpu', cart:cart, itemList: currentProducts})
     } catch (error) {
         if(!error.statusCode){
@@ -58,6 +66,34 @@ const addToCart =  async (req, res, next) => {
         }
         next(error)
     }
+}
+
+
+const getCart = async (req, res, next) => {
+    const aToken = req.headers.authorization.split(' ')[1]
+    const authUser = jwt.verify(aToken, process.env.JWT_SECRET)
+    const userId = authUser.userId
+    try {
+        const currentUser = await User.findByPk(userId);
+
+        let cart = await Cart.findOne({
+            where:{
+                userId: currentUser.id
+            }
+        });
+
+        let currentProducts = await CartItem.findAll({
+            where:{
+                CartId:cart.id,
+            }
+        });
+
+        res.status(200).json({cart:cart, products:currentProducts})
+    } catch (error) {
+          
+    }
+
+
 }
 
 const deleteCartItem = async (req, res, next) => {
@@ -90,7 +126,6 @@ const deleteCartItem = async (req, res, next) => {
             throw error;
         }   
         await currentProducts[0].destroy()
-        console.log(currentProducts)
         res.status(200).json({message:'Product removed from cart'})
     } catch (error) {
         if(!error.statusCode){
@@ -103,5 +138,6 @@ const deleteCartItem = async (req, res, next) => {
 
 module.exports = {
     addToCart,
-    deleteCartItem
+    deleteCartItem,
+    getCart
 }

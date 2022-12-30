@@ -13,7 +13,7 @@ const {
 } = require('../controllers/products')
 
 // Method = "POST" => http://localhost:8080/products/create-product
-router.post('/create-product/', createProduct);
+router.post('/create-product', createProduct);
 
 //Method = 'GET' => http://localhost:8080/products/all-products
 router.get('/all-products', getAllProducts);
