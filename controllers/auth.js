@@ -1,7 +1,7 @@
-const User = require('../models/user');
 const {Sequelize} = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 require('dotenv').config();
 
 
@@ -154,6 +154,32 @@ const updateUser = async (req, res, next) => {
        }
         next(error);
     }
+};
+
+
+const changePassword = async (req, res, next) => {
+    const userId = req.params.id
+    const {pass, newPassword} = req.body
+    try {
+        const user = await User.findByPk(userId);
+        const comparePw = await bcrypt.compare(pass, user.password);
+       if(!comparePw){
+        const error = new Error('Wrong password');
+        error.statusCode = 401;
+        throw error;
+       }
+       const hashedNewPass = await bcrypt.hash(newPassword, 12)
+       user.password = hashedNewPass
+       await user.save()
+       res.status(200).json({message: 'uspesno ste promenili password'})
+        
+    } catch (error) {
+        if(!error.statusCode){
+            error.statusCode = 500;
+       }
+        next(error);
+    }
+
 }
 
 
@@ -162,5 +188,6 @@ module.exports = {
     signin,
     getUser,
     deleteUser,
-    updateUser
+    updateUser,
+    changePassword
 }

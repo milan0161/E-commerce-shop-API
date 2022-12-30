@@ -8,7 +8,8 @@ const {
     signin,
     getUser,
     deleteUser,
-    updateUser
+    updateUser,
+    changePassword
     
 
 } = require('../controllers/auth')
@@ -31,5 +32,7 @@ router.get('/get-user-info/:id', getUser);
 //method "DELETE" => localhost:8080/user/delete-user/id
 router.delete('/delete-user/:id', deleteUser);
 
+//Method "POST" => localhost:8080/user/reset-password/id
+router.post('/reset-password/:id', changePassword)
 
 module.exports = router;
