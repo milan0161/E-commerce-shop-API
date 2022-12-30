@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 require('dotenv').config();
+const transport = require('../utils/transport')
+
 
 
 const singup = async (req, res, next) => {
@@ -38,7 +40,18 @@ const singup = async (req, res, next) => {
             role: user.role
        },process.env.JWT_SECRET,{
         expiresIn: '10h'
-        })
+        });
+
+        
+        transport.sendMail({
+            to: email,
+            from: 'OnlineShop <milan.bullet@gmail.com>',
+            subject: 'Signup succeeded',
+            html:`<h1> You successfully signed up to OnlineShop!</h1>
+                    <h2>Welcome ${name}</h2>`
+        });
+      
+
         res.status(201).json({token: token, user:user})
     } catch (error) {
         if(!error.statusCode){
