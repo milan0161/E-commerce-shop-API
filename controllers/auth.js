@@ -66,6 +66,7 @@ const signin = async (req, res, next) => {
     const {email, password} = req.body;
 
     try {
+
        const user = await User.findOne({where:{
         email:email
        }})
@@ -101,14 +102,14 @@ const getUser = async (req, res, next) => {
    const userId = req.params.id
    
    try {
-       const user = await User.findByPk(userId);
-       res.status(200).json({
+        const user = await User.findByPk(userId);
+        res.status(200).json({
         user:user
        })
     
    } catch (error) {
-    if(!error.statusCode){
-        error.statusCode = 500;
+        if(!error.statusCode){
+            error.statusCode = 500;
    }
     next(error);
    }
@@ -117,11 +118,26 @@ const getUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
     const userId = req.params.id;
     try {
-        const user = await User.destroy({
-            where:{
-                id:userId
-            }
-        })
+        const authToken = req.headers.authorization.split(' ')[1]
+        if(!authToken){
+            const error = new Error('Not authorized');
+            error.statusCode = 401;
+            throw error;
+        }
+        const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET)
+        console.log(decodedToken)
+        if(userId.toString() === decodedToken.userId.toString() || decodedToken.role === 'admin'){
+            const user = await User.destroy({
+                where:{
+                    id:userId
+                }
+            })
+        }else {
+            const error = new Error('Not authorized for that action');
+            error.statusCode = 401;
+            throw error;
+        }
+       
         res.status(200).json({message:'User Deleted'})
     } catch (error) {
         if(!error.statusCode){
@@ -132,9 +148,22 @@ const deleteUser = async (req, res, next) => {
 }
 //Funkcija update za korisnika, promena korisnickih podataka, ne moraju svi da se menjaju, vec po zelji.
 const updateUser = async (req, res, next) => {
-    try {
         const userId = req.params.id
-        const {name, password, email} = req.body;
+    try {
+        const authToken = req.headers.authorization.split(' ')[1]
+        if(!authToken){
+            const error = new Error('Not authorized');
+            error.statusCode = 401;
+            throw error;
+        }
+        const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET)
+        if(userId.toString() !== decodedToken.userId.toString()){
+            const error = new Error('Not authorized');
+            error.statusCode = 401;
+            throw error;
+        }
+        const { name, password, email } = req.body;
+        console.log(name)
         const hashedPw = await bcrypt.hash(password, 12);
         const user = await User.findOne({
             where:{
@@ -174,6 +203,18 @@ const changePassword = async (req, res, next) => {
     const userId = req.params.id
     const {pass, newPassword} = req.body
     try {
+        const authToken = req.headers.authorization.split(' ')[1]
+        if(!authToken){
+            const error = new Error('Not authorized');
+            error.statusCode = 401;
+            throw error;
+        }
+        const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET)
+        if(userId.toString() !== decodedToken.userId.toString()){
+            const error = new Error('Not authorized');
+            error.statusCode = 401;
+            throw error;
+        }
         const user = await User.findByPk(userId);
         const comparePw = await bcrypt.compare(pass, user.password);
        if(!comparePw){

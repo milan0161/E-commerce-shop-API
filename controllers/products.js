@@ -8,20 +8,6 @@ const path = require('path');
 
 const createProduct = async (req, res, next) => {
     try {
-        const authToken = req.headers.authorization.split(' ')[1]
-        if(!authToken){
-            const error = new Error('you are not authorized for that action');
-            error.statusCode = 401;
-            throw error;
-        }
-        const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET)
-        const userRole = decodedToken.role
-        
-        if(userRole !== 'admin'){
-            const error = new Error('you are not authorized for that action');
-            error.statusCode = 401;
-            throw error;
-        }
         const { model, producer, price, processor, processorModel, ram, screenResolution, screenType, GPU, GPUModel, ssd, ssdModel, description, OS, battery, material, screenDiag} = req.body;
 
         const images = req.file.path.replaceAll("\\", '/')
@@ -68,6 +54,29 @@ const getAllProducts = async (req, res, next) => {
     try {
        const products = await Product.findAll()
        res.status(200).json(products)
+    } catch (error) {
+        if(!error.statusCode){
+            error.statusCode = 500;
+        }
+        next(error)
+    }
+}
+
+const getProducts = async (req, res, next) => {
+    let page = Number(req.query.page) || 1;
+    let limit = Number(req.query.limit) || 3
+    let skip = (page -1 ) * limit;
+    
+    try {
+        const totalItems = await Product.count()
+        const products = await Product.findAndCountAll({
+        limit:limit,
+        offset:skip
+       })
+       res.status(200).json({
+        products:products.rows,
+        totalItems:totalItems
+       })
     } catch (error) {
         if(!error.statusCode){
             error.statusCode = 500;
@@ -161,6 +170,7 @@ module.exports = {
     getAllProducts,
     getOneProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProducts
     
 }
